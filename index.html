@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wild India — Living Biodiversity Archive</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&amp;family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&amp;family=DM+Sans:wght@300;400;500&amp;display=swap" rel="stylesheet">
+  <style>
+@keyframes leafFall{0%{transform:translateY(-10%) rotate(0deg) translateX(0);opacity:0}10%{opacity:.6}90%{opacity:.4}100%{transform:translateY(110%) rotate(360deg) translateX(80px);opacity:0}}
+@keyframes mistDrift{0%{transform:translateX(-5%) scaleX(1);opacity:.15}50%{transform:translateX(5%) scaleX(1.1);opacity:.25}100%{transform:translateX(-5%) scaleX(1);opacity:.15}}
+@keyframes rootGrow{0%{width:0}100%{width:100%}}
+@keyframes fadeInUp{0%{opacity:0;transform:translateY(40px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes pulseGlow{0%,100%{opacity:.3}50%{opacity:.7}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes revealClip{0%{clip-path:inset(100% 0 0 0)}100%{clip-path:inset(0 0 0 0)}}
+@keyframes waveFlow{0%{d:path('M0,80 Q150,40 300,80 T600,80 T900,80 T1200,80 V200 H0 Z')}50%{d:path('M0,60 Q150,100 300,60 T600,60 T900,60 T1200,60 V200 H0 Z')}100%{d:path('M0,80 Q150,40 300,80 T600,80 T900,80 T1200,80 V200 H0 Z')}}
+@keyframes sandDrift{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes treeRingSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:#1a1410;color:#D7CCC8;overflow-x:hidden}
+.font-display{font-family:'Playfair Display',serif}
+.font-accent{font-family:'Cormorant Garamond',serif}
+
+.wood-grain{background-image:url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.03 0.15' numOctaves='4' seed='2'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");background-size:200px 200px}
+
+.bark-texture{background-image:url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.08 0.02' numOctaves='5' seed='8'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23b)' opacity='.06'/%3E%3C/svg%3E");background-size:100px 100px}
+
+.leaf-particle{position:absolute;width:12px;height:12px;opacity:0;animation:leafFall linear infinite;pointer-events:none}
+.leaf-particle svg{width:100%;height:100%;fill:#8D6E63;opacity:.5}
+
+.root-nav-line{height:2px;background:#4E342E;transform-origin:left;transition:width .6s cubic-bezier(.22,1,.36,1),background .3s ease,box-shadow .3s ease}
+.root-nav-item:hover{color:#7FBF7F;opacity:1}
+.root-nav-item:hover .root-nav-line{width:100% !important;background:#7FBF7F;box-shadow:0 0 12px rgba(127,191,127,.55)}
+
+.species-card{transition:all .5s cubic-bezier(.22,1,.36,1);transform-origin:center bottom}
+.species-card:hover{transform:translateY(-8px) rotateX(2deg);box-shadow:0 20px 60px rgba(0,0,0,.4),0 0 0 1px rgba(127,191,127,.2),0 0 28px rgba(127,191,127,.12)}
+
+.field-note-card{clip-path:polygon(0 3%,2% 0,98% 0,100% 4%,100% 96%,97% 100%,3% 100%,0 97%);transition:all .5s cubic-bezier(.22,1,.36,1)}
+.field-note-card:hover{clip-path:polygon(0 0,0 0,100% 0,100% 0,100% 100%,100% 100%,0 100%,0 100%);transform:scale(1.02);box-shadow:0 0 0 1px rgba(127,191,127,.2),0 0 24px rgba(127,191,127,.12)}
+
+.glass-card{background:rgba(30,50,60,.3);backdrop-filter:blur(12px);border:1px solid rgba(200,161,101,.15);transition:all .3s ease}
+.glass-card:hover{border-color:rgba(127,191,127,.42);box-shadow:0 0 0 1px rgba(127,191,127,.15),0 0 22px rgba(127,191,127,.08)}
+
+.photo-frame{position:relative;overflow:hidden;background:#0f0d0a;transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease}
+.photo-frame img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.01);transition:transform .35s ease,filter .35s ease}
+.photo-frame::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(26,20,16,.08) 0%,rgba(26,20,16,.22) 55%,rgba(26,20,16,.62) 100%);pointer-events:none;transition:background .35s ease}
+.photo-frame:hover{transform:translateY(-3px);box-shadow:0 0 0 1px rgba(127,191,127,.22),0 0 28px rgba(127,191,127,.14)}
+.photo-frame:hover img{transform:scale(1.06);filter:saturate(1.08) contrast(1.02)}
+.photo-frame:hover::after{background:linear-gradient(180deg,rgba(127,191,127,.06) 0%,rgba(127,191,127,.18) 55%,rgba(26,20,16,.5) 100%)}
+
+.scroll-indicator{position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:40}
+
+.tree-ring-divider{position:relative;height:120px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+
+.section-reveal{opacity:0;transform:translateY(50px);transition:all .8s cubic-bezier(.22,1,.36,1)}
+.section-reveal.visible{opacity:1;transform:translateY(0)}
+
+.diagonal-cut{clip-path:polygon(0 8%,100% 0,100% 92%,0 100%)}
+.curved-top{clip-path:ellipse(80% 100% at 50% 100%)}
+
+.drawer-card{border:1px solid rgba(78,52,46,.4);transition:all .4s ease;position:relative;overflow:hidden}
+.drawer-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#C8A165,transparent);opacity:0;transition:opacity .3s}
+.drawer-card:hover::before{opacity:1}
+.drawer-card:hover{border-color:rgba(127,191,127,.45);transform:translateY(-4px);box-shadow:0 0 0 1px rgba(127,191,127,.18),0 0 24px rgba(127,191,127,.1)}
+
+.stagger-1{animation-delay:.1s}.stagger-2{animation-delay:.2s}.stagger-3{animation-delay:.3s}.stagger-4{animation-delay:.4s}.stagger-5{animation-delay:.5s}
+</style>
+  <script>
+tailwind.config={theme:{extend:{colors:{bark:'#4E342E',darkwood:'#3B2A23',moss:'#556B2F',dryleaf:'#8D6E63',sand:'#D7CCC8',gold:'#C8A165'}}}}
+</script>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full">
+  <div id="app" class="w-full h-full overflow-auto wood-grain" style="background-color:#1a1410"><!-- Leaf Particles Container -->
+   <div id="particles" class="fixed inset-0 pointer-events-none z-50" aria-hidden="true"></div><!-- Scroll Indicator - Leaf Stem -->
+   <div class="scroll-indicator hidden md:flex flex-col items-center gap-1" id="scrollIndicator">
+    <div class="w-px h-16 bg-gradient-to-b from-transparent via-gold to-transparent opacity-40"></div>
+    <svg width="14" height="20" viewbox="0 0 14 20" class="text-gold opacity-50" style="animation:floatY 3s ease-in-out infinite"><path d="M7 0C7 0 0 6 0 12c0 4 3 7 7 8 4-1 7-4 7-8C14 6 7 0 7 0z" fill="currentColor" /> <line x1="7" y1="8" x2="7" y2="20" stroke="currentColor" stroke-width=".5" opacity=".6" />
+    </svg>
+    <div class="w-px h-16 bg-gradient-to-b from-transparent via-gold to-transparent opacity-40"></div>
+   </div><!-- Root Navigation -->
+   <nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-500" id="mainNav">
+    <div class="w-full px-6 md:px-12 py-4 flex items-center justify-between" style="background:linear-gradient(180deg,rgba(26,20,16,.95) 0%,rgba(26,20,16,0) 100%)">
+     <div class="flex items-center gap-3">
+      <svg width="28" height="28" viewbox="0 0 28 28" class="text-gold"><circle cx="14" cy="14" r="12" fill="none" stroke="currentColor" stroke-width="1" opacity=".4" /> <circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" stroke-width=".5" opacity=".3" /> <circle cx="14" cy="14" r="4" fill="none" stroke="currentColor" stroke-width=".5" opacity=".2" /> <path d="M14 2C14 2 8 8 8 14c0 4 3 7 6 8 3-1 6-4 6-8 0-6-6-12-6-12z" fill="currentColor" opacity=".6" />
+      </svg><span class="font-display text-sm tracking-widest text-sand opacity-80 uppercase">Wild India</span>
+     </div>
+     <div class="hidden md:flex items-center gap-8"><a href="#habitats" class="root-nav-item group relative text-xs tracking-widest uppercase text-sand opacity-60 hover:opacity-100 transition-opacity pb-1" id="navHabitats"> <span>Habitats</span>
+       <div class="root-nav-line absolute bottom-0 left-0" style="width:0"></div></a> <a href="#species" class="root-nav-item group relative text-xs tracking-widest uppercase text-sand opacity-60 hover:opacity-100 transition-opacity pb-1" id="navSpecies"> <span>Living Species</span>
+       <div class="root-nav-line absolute bottom-0 left-0" style="width:0"></div></a> <a href="#predators" class="root-nav-item group relative text-xs tracking-widest uppercase text-sand opacity-60 hover:opacity-100 transition-opacity pb-1" id="navPredators"> <span>Predators</span>
+       <div class="root-nav-line absolute bottom-0 left-0" style="width:0"></div></a> <a href="#reefs" class="root-nav-item group relative text-xs tracking-widest uppercase text-sand opacity-60 hover:opacity-100 transition-opacity pb-1" id="navReefs"> <span>Reefs</span>
+       <div class="root-nav-line absolute bottom-0 left-0" style="width:0"></div></a> <a href="#memory" class="root-nav-item group relative text-xs tracking-widest uppercase text-sand opacity-60 hover:opacity-100 transition-opacity pb-1" id="navMemory"> <span>Forest Memory</span>
+       <div class="root-nav-line absolute bottom-0 left-0" style="width:0"></div></a>
+     </div><button class="md:hidden text-sand opacity-60" id="mobileMenuBtn" aria-label="Menu"> <i data-lucide="menu" style="width:22px;height:22px"></i> </button>
+    </div>
+   </nav><!-- Mobile Menu -->
+   <div class="fixed inset-0 z-50 hidden" id="mobileMenu" style="background:rgba(26,20,16,.97)">
+    <div class="flex flex-col items-center justify-center h-full gap-8"><button class="absolute top-5 right-6 text-sand" id="mobileMenuClose" aria-label="Close menu"><i data-lucide="x" style="width:24px;height:24px"></i></button> <a href="#habitats" class="font-display text-2xl text-sand opacity-70 hover:opacity-100 transition-opacity mobile-nav-link">Habitats</a> <a href="#species" class="font-display text-2xl text-sand opacity-70 hover:opacity-100 transition-opacity mobile-nav-link">Living Species</a> <a href="#predators" class="font-display text-2xl text-sand opacity-70 hover:opacity-100 transition-opacity mobile-nav-link">Predators</a> <a href="#reefs" class="font-display text-2xl text-sand opacity-70 hover:opacity-100 transition-opacity mobile-nav-link">Reefs</a> <a href="#memory" class="font-display text-2xl text-sand opacity-70 hover:opacity-100 transition-opacity mobile-nav-link">Forest Memory</a>
+    </div>
+   </div><!-- ==================== HERO SECTION ==================== -->
+   <section class="relative w-full" style="min-height:100%"><!-- Mist Layer -->
+    <div class="absolute inset-0 overflow-hidden" aria-hidden="true">
+     <div class="absolute inset-0" style="background:radial-gradient(ellipse at 30% 60%,rgba(85,107,47,.12) 0%,transparent 60%)"></div>
+     <div class="absolute inset-0" style="background:radial-gradient(ellipse at 70% 40%,rgba(78,52,46,.15) 0%,transparent 50%)"></div>
+     <div class="absolute w-full h-full" style="animation:mistDrift 12s ease-in-out infinite;background:radial-gradient(ellipse at 50% 70%,rgba(200,161,101,.04) 0%,transparent 60%)"></div>
+    </div><!-- Forest Scene SVG Background -->
+    <div class="absolute inset-0" aria-hidden="true">
+     <svg class="w-full h-full" viewbox="0 0 1200 800" preserveaspectratio="xMidYMid slice"><defs>
+       <lineargradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#1a1410" />
+        <stop offset="40%" stop-color="#2a2018" />
+        <stop offset="100%" stop-color="#1a1814" />
+       </lineargradient>
+       <radialgradient id="mistGrad" cx="50%" cy="65%" r="40%">
+        <stop offset="0%" stop-color="#D7CCC8" stop-opacity=".08" />
+        <stop offset="100%" stop-color="#1a1410" stop-opacity="0" />
+       </radialgradient>
+       <lineargradient id="goldLight" x1="0.3" y1="0" x2="0.7" y2="1">
+        <stop offset="0%" stop-color="#C8A165" stop-opacity=".06" />
+        <stop offset="100%" stop-color="#1a1410" stop-opacity="0" />
+       </lineargradient>
+      </defs> <rect width="1200" height="800" fill="url(#skyGrad)" /> <rect width="1200" height="800" fill="url(#goldLight)" /> <!-- Background trees --> <g opacity=".15">
+       <path d="M100,800 L100,400 Q80,380 60,400 L60,350 Q100,200 140,350 L140,400 Q120,380 100,400Z" fill="#556B2F" />
+       <path d="M250,800 L250,350 Q220,330 200,360 L200,300 Q250,150 300,300 L300,360 Q280,330 250,350Z" fill="#4E342E" />
+       <path d="M900,800 L900,380 Q880,360 860,380 L860,320 Q900,170 940,320 L940,380 Q920,360 900,380Z" fill="#556B2F" />
+       <path d="M1050,800 L1050,420 Q1030,400 1010,420 L1010,370 Q1050,240 1090,370 L1090,420 Q1070,400 1050,420Z" fill="#3B2A23" />
+      </g> <!-- Mid trees --> <g opacity=".25">
+       <path d="M180,800 L180,450 Q160,420 140,450 Q180,280 220,450 Q200,420 180,450Z" fill="#4E342E" />
+       <path d="M400,800 L400,500 Q370,470 350,500 Q400,350 450,500 Q430,470 400,500Z" fill="#556B2F" />
+       <path d="M780,800 L780,430 Q760,400 740,430 Q780,260 820,430 Q800,400 780,430Z" fill="#3B2A23" />
+      </g> <!-- Foreground vegetation --> <g opacity=".35">
+       <path d="M0,800 Q100,700 200,750 Q300,680 400,730 Q500,700 600,740 Q700,690 800,720 Q900,700 1000,750 Q1100,710 1200,760 L1200,800Z" fill="#2a2218" />
+       <path d="M0,800 Q150,740 300,770 Q450,730 600,760 Q750,720 900,760 Q1050,740 1200,780 L1200,800Z" fill="#1a1814" />
+      </g> <!-- Ground mist --> <rect width="1200" height="800" fill="url(#mistGrad)" /> <!-- Tiger silhouette emerging from mist --> <g transform="translate(520,520)" opacity=".5">
+       <ellipse cx="0" cy="35" rx="80" ry="8" fill="#C8A165" opacity=".06" /> <!-- Tiger body -->
+       <path d="M-60,0 Q-55,-25 -40,-30 Q-20,-35 0,-32 Q20,-35 40,-30 Q55,-25 60,0 Q58,15 50,25 L-50,25 Q-58,15 -60,0Z" fill="#8D6E63" opacity=".7" /> <!-- Head -->
+       <ellipse cx="0" cy="-38" rx="18" ry="15" fill="#8D6E63" opacity=".8" /> <!-- Ears -->
+       <path d="M-14,-50 Q-10,-58 -6,-50Z" fill="#8D6E63" opacity=".6" />
+       <path d="M14,-50 Q10,-58 6,-50Z" fill="#8D6E63" opacity=".6" /> <!-- Eyes -->
+       <ellipse cx="-7" cy="-40" rx="2.5" ry="1.5" fill="#C8A165" opacity=".9" />
+       <ellipse cx="7" cy="-40" rx="2.5" ry="1.5" fill="#C8A165" opacity=".9" /> <!-- Stripes -->
+       <line x1="-30" y1="-15" x2="-25" y2="5" stroke="#3B2A23" stroke-width="2" opacity=".4" />
+       <line x1="-15" y1="-20" x2="-12" y2="5" stroke="#3B2A23" stroke-width="2" opacity=".4" />
+       <line x1="15" y1="-20" x2="12" y2="5" stroke="#3B2A23" stroke-width="2" opacity=".4" />
+       <line x1="30" y1="-15" x2="25" y2="5" stroke="#3B2A23" stroke-width="2" opacity=".4" />
+      </g>
+     </svg>
+    </div><!-- Hero Content - Off-grid left placement -->
+    <div class="relative z-10 flex flex-col justify-end px-6 md:px-16 pb-20 pt-32" style="min-height:100%"><!-- Vertical accent text -->
+     <div class="hidden md:block absolute left-6 top-1/3 transform -rotate-90 origin-left"><span class="font-accent text-xs tracking-widest text-gold opacity-30 uppercase">Est. Biodiversity Archive — India</span>
+     </div><!-- Floating observation note -->
+     <div class="hidden lg:block absolute right-16 top-1/3 max-w-[200px] p-4 border border-gold border-opacity-10 bg-darkwood bg-opacity-40 backdrop-blur-sm" style="transform:rotate(2deg)">
+      <p class="font-accent text-xs text-sand opacity-50 italic leading-relaxed">"In the silence of the Sal forest, every shadow breathes. The tiger does not appear — it materializes."</p><span class="text-gold opacity-30 text-xs mt-2 block">— Field Journal, 1927</span>
+     </div>
+     <div class="max-w-3xl">
+      <div class="flex items-center gap-3 mb-6">
+       <div class="w-12 h-px bg-gold opacity-40"></div><span class="font-accent text-xs tracking-widest text-gold opacity-50 uppercase">A Living Archive</span>
+      </div>
+      <h1 class="font-display text-6xl md:text-8xl lg:text-9xl font-bold leading-none mb-6" id="heroTitle" style="color:#D7CCC8">Wild<br><span class="text-gold">India</span></h1>
+      <p class="font-accent text-lg md:text-xl text-sand opacity-50 max-w-lg leading-relaxed mb-10" id="heroSubtitle">A living archive of forests, oceans, islands, and species.</p><!-- Floating Habitat Navigation Cards -->
+      <div class="flex flex-wrap gap-3"><a href="#forest" class="field-note-card px-5 py-3 bg-bark bg-opacity-30 border border-bark border-opacity-20 text-sand text-xs tracking-widest uppercase hover:bg-opacity-50 hover:border-gold hover:border-opacity-30 transition-all"> <span class="opacity-60">01</span> <span class="ml-2 opacity-80">Forest</span> </a> <a href="#desert" class="field-note-card px-5 py-3 bg-bark bg-opacity-30 border border-bark border-opacity-20 text-sand text-xs tracking-widest uppercase hover:bg-opacity-50 hover:border-gold hover:border-opacity-30 transition-all"> <span class="opacity-60">02</span> <span class="ml-2 opacity-80">Desert</span> </a> <a href="#himalayas" class="field-note-card px-5 py-3 bg-bark bg-opacity-30 border border-bark border-opacity-20 text-sand text-xs tracking-widest uppercase hover:bg-opacity-50 hover:border-gold hover:border-opacity-30 transition-all"> <span class="opacity-60">03</span> <span class="ml-2 opacity-80">Himalayas</span> </a> <a href="#reefs" class="field-note-card px-5 py-3 bg-bark bg-opacity-30 border border-bark border-opacity-20 text-sand text-xs tracking-widest uppercase hover:bg-opacity-50 hover:border-gold hover:border-opacity-30 transition-all"> <span class="opacity-60">04</span> <span class="ml-2 opacity-80">Marine</span> </a> <a href="#islands" class="field-note-card px-5 py-3 bg-bark bg-opacity-30 border border-bark border-opacity-20 text-sand text-xs tracking-widest uppercase hover:bg-opacity-50 hover:border-gold hover:border-opacity-30 transition-all"> <span class="opacity-60">05</span> <span class="ml-2 opacity-80">Islands</span> </a>
+      </div>
+     </div><!-- Scroll prompt -->
+     <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 opacity-40"><span class="text-xs tracking-widest text-sand uppercase">Explore</span>
+      <svg width="16" height="30" class="text-gold" style="animation:floatY 2s ease-in-out infinite"><path d="M8 0 L8 24 M3 19 L8 24 L13 19" stroke="currentColor" fill="none" stroke-width="1.5" />
+      </svg>
+     </div>
+    </div>
+   </section><!-- ==================== TREE RING DIVIDER ==================== -->
+   <div class="tree-ring-divider" aria-hidden="true">
+    <svg width="120" height="120" viewbox="0 0 120 120" class="opacity-15"><circle cx="60" cy="60" r="55" fill="none" stroke="#8D6E63" stroke-width=".5" /> <circle cx="60" cy="60" r="45" fill="none" stroke="#8D6E63" stroke-width=".3" /> <circle cx="60" cy="60" r="35" fill="none" stroke="#C8A165" stroke-width=".5" /> <circle cx="60" cy="60" r="25" fill="none" stroke="#8D6E63" stroke-width=".3" /> <circle cx="60" cy="60" r="15" fill="none" stroke="#8D6E63" stroke-width=".4" /> <circle cx="60" cy="60" r="6" fill="#4E342E" opacity=".5" />
+    </svg>
+   </div><!-- ==================== FOREST SECTION ==================== -->
+   <section id="forest" class="relative w-full section-reveal bark-texture" style="background:linear-gradient(135deg,#1a1814 0%,#2a2218 50%,#1a1410 100%)">
+    <div class="flex flex-col lg:flex-row min-h-0"><!-- Left: Bark texture panel -->
+     <div class="lg:w-2/5 relative p-8 md:p-16 flex flex-col justify-center" style="background:linear-gradient(180deg,rgba(78,52,46,.15) 0%,rgba(59,42,35,.2) 100%)">
+      <div class="absolute top-0 left-0 w-full h-full opacity-10" style="background-image:repeating-linear-gradient(0deg,transparent,transparent 8px,rgba(78,52,46,.3) 8px,rgba(78,52,46,.3) 9px)"></div>
+      <div class="relative"><span class="font-accent text-xs tracking-widest text-gold opacity-40 uppercase block mb-4">Habitat 01</span>
+       <h2 class="font-display text-4xl md:text-5xl font-bold text-sand mb-6">The Dense<br>
+         Forests</h2>
+       <p class="font-accent text-base text-sand opacity-50 leading-relaxed mb-8 max-w-sm">India's forests hold 8% of the world's biodiversity. From the Western Ghats to the Sundarbans, each canopy shelters countless life forms in a delicate equilibrium.</p>
+       <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-full bg-moss bg-opacity-20 flex items-center justify-center"><i data-lucide="trees" class="text-moss" style="width:18px;height:18px"></i>
+        </div>
+        <div><span class="text-sand text-xs opacity-40 block">Total Forest Cover</span> <span class="font-display text-lg text-gold">713,789 km²</span>
+        </div>
+       </div>
+      </div>
+     </div><!-- Right: Floating species cards -->
+     <div class="lg:w-3/5 p-8 md:p-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="species-card field-note-card bg-darkwood bg-opacity-40 p-6 stagger-1" style="animation:fadeInUp .6s ease both;animation-play-state:paused">
+       <div class="photo-frame w-full h-40 mb-4 rounded">
+        <img src="https://images.pexels.com/photos/25773105/pexels-photo-25773105.jpeg?auto=compress&cs=tinysrgb&w=4096" alt="Bengal tiger in forest" loading="lazy">
+        <div class="absolute bottom-2 right-2 z-10 text-xs text-sand opacity-80 font-accent italic">
+         Panthera tigris
+        </div>
+       </div>
+       <h3 class="font-display text-lg text-sand mb-1">Bengal Tiger</h3>
+       <p class="text-xs text-sand opacity-40 font-accent">Apex predator of the Indian forest. ~3,167 remain in the wild.</p>
+       <div class="mt-3 flex items-center gap-2"><span class="px-2 py-1 text-xs bg-bark bg-opacity-30 text-gold rounded">Endangered</span>
+       </div>
+      </div>
+      <div class="species-card field-note-card bg-darkwood bg-opacity-40 p-6 stagger-2" style="animation:fadeInUp .6s ease both;animation-play-state:paused;margin-top:2rem">
+       <div class="photo-frame w-full h-40 mb-4 rounded">
+        <img src="https://images.pexels.com/photos/5631317/pexels-photo-5631317.jpeg?auto=compress&cs=tinysrgb&w=4096" alt="Red panda in forest" loading="lazy">
+        <div class="absolute bottom-2 right-2 z-10 text-xs text-sand opacity-80 font-accent italic">
+         Ailurus fulgens
+        </div>
+       </div>
+       <h3 class="font-display text-lg text-sand mb-1">Red Panda</h3>
+       <p class="text-xs text-sand opacity-40 font-accent">Shy arboreal mammal of the Eastern Himalayas.</p>
+       <div class="mt-3 flex items-center gap-2"><span class="px-2 py-1 text-xs bg-bark bg-opacity-30 text-gold rounded">Vulnerable</span>
+       </div>
+      </div>
+      <div class="species-card field-note-card bg-darkwood bg-opacity-40 p-6 stagger-3" style="animation:fadeInUp .6s ease both;animation-play-state:paused">
+       <div class="photo-frame w-full h-40 mb-4 rounded">
+        <img src="https://images.pexels.com/photos/18974570/pexels-photo-18974570.jpeg?auto=compress&cs=tinysrgb&w=4096" alt="Sambar deer in forest" loading="lazy">
+        <div class="absolute bottom-2 right-2 z-10 text-xs text-sand opacity-80 font-accent italic">
+         Cervus unicolor
+        </div>
+       </div>
+       <h3 class="font-display text-lg text-sand mb-1">Sambar Deer</h3>
+       <p class="text-xs text-sand opacity-40 font-accent">The largest Indian deer species, vital prey base of forest ecosystems.</p>
+       <div class="mt-3 flex items-center gap-2"><span class="px-2 py-1 text-xs bg-moss bg-opacity-30 text-moss rounded">Stable</span>
+       </div>
+      </div>
+      <div class="species-card field-note-card bg-darkwood bg-opacity-40 p-6 stagger-4" style="animation:fadeInUp .6s ease both;animation-play-state:paused;margin-top:2rem">
+       <div class="photo-frame w-full h-40 mb-4 rounded">
+        <img src="https://images.pexels.com/photos/16453276/pexels-photo-16453276.jpeg?auto=compress&cs=tinysrgb&w=4096" alt="Hornbill in jungle" loading="lazy">
+        <div class="absolute bottom-2 right-2 z-10 text-xs text-sand opacity-80 font-accent italic">
+         Buceros bicornis
+        </div>
+       </div>
+       <h3 class="font-display text-lg text-sand mb-1">Great Hornbill</h3>
+       <p class="text-xs text-sand opacity-40 font-accent">Ancient canopy dweller, seed disperser of the rainforest.</p>
+       <div class="mt-3 flex items-center gap-2"><span class="px-2 py-1 text-xs bg-bark bg-opacity-30 text-gold rounded">Near Threatened</span>
+       </div>
+      </div>
+     </div>
+    </div><!-- Floating side note -->
+    <div class="hidden lg:block absolute right-8 bottom-12 max-w-[180px] opacity-40">
+     <div class="border-l border-gold border-opacity-20 pl-3">
+      <p class="font-accent text-xs text-sand italic leading-relaxed">"The forest floor is a library written in roots and decay."</p>
+     </div>
+    </div>
+   </section><!-- ==================== DESERT SECTION ==================== -->
+   <section id="desert" class="relative w-full section-reveal" style="background:linear-gradient(90deg,#2a2018 0%,#3B2A23 40%,#4E342E 70%,#2a2018 100%)"><!-- Horizontal panoramic strip -->
+    <div class="py-16 px-6 md:px-16">
+     <div class="flex items-center gap-3 mb-2"><span class="font-accent text-xs tracking-widest text-gold opacity-40 uppercase">Habitat 02</span>
+      <div class="w-20 h-px bg-gold opacity-20"></div>
+     </div>
+     <h2 class="font-display text-4xl md:text-5xl font-bold text-sand mb-4">The Thar<br>
+       Desert</h2>
+     <p class="font-accent text-base text-sand opacity-40 max-w-md mb-10">200,000 km² of arid wonder. Life persists in the margins — adapted, resilient, beautiful.</p><!-- Panoramic scrolling strip -->
+          <div class="photo-frame relative overflow-hidden rounded-lg" style="height:280px">
+      <img src="https://images.pexels.com/photos/29147671/pexels-photo-29147671.jpeg?auto=compress&cs=tinysrgb&w=4096" alt="Desert dunes at sunset" class="absolute inset-0 w-full h-full object-cover">
+      <div class="absolute inset-0" style="background:linear-gradient(180deg,rgba(26,20,16,.05) 0%,rgba(26,20,16,.3) 100%)"></div>
+      <div class="absolute bottom-4 left-4 z-10 glass-card px-4 py-3 rounded">
+       <span class="font-display text-sm text-sand">Thar Dunes</span>
+       <span class="block text-xs text-gold opacity-50 font-accent italic">A clean panoramic view</span>
+      </div>
+     </div>
+    </div>
+   </section><!-- ==================== TREE RING DIVIDER ==================== -->
+   <div class="tree-ring-divider" aria-hidden="true">
+    <svg width="80" height="80" viewbox="0 0 80 80" class="opacity-10"><circle cx="40" cy="40" r="35" fill="none" stroke="#C8A165" stroke-width=".5" /> <circle cx="40" cy="40" r="25" fill="none" stroke="#8D6E63" stroke-width=".3" /> <circle cx="40" cy="40" r="15" fill="none" stroke="#8D6E63" stroke-width=".3" /> <circle cx="40" cy="40" r="5" fill="#4E342E" opacity=".4" />
+    </svg>
+   </div><!-- ==================== HIMALAYAS SECTION ==================== -->
+   <section id="himalayas" class="relative w-full section-reveal" style="background:linear-gradient(180deg,#1a1814 0%,#2a2822 50%,#1a1410 100%)">
+    <div class="py-16 px-6 md:px-16">
+     <div class="flex items-center gap-3 mb-2"><span class="font-accent text-xs tracking-widest text-gold opacity-40 uppercase">Habitat 03</span>
+      <div class="w-20 h-px bg-gold opacity-20"></div>
+     </div>
+     <h2 class="font-display text-4xl md:text-5xl font-bold text-sand mb-4">The High<br>
+       Himalayas</h2>
+     <p class="font-accent text-base text-sand opacity-40 max-w-md mb-10">Where the air thins and life takes on extraordinary forms to survive.</p><!-- Layered mountain depth cards -->
+     <div class="relative" style="min-height:400px"><!-- Mountain image backdrop -->
+      <img src="https://images.pexels.com/photos/17405442/pexels-photo-17405442.jpeg?auto=compress&cs=tinysrgb&w=4096" alt="Snow covered Himalayas" class="absolute inset-0 w-full h-full object-cover rounded-2xl opacity-30">
+      <div class="absolute inset-0 rounded-2xl" style="background:linear-gradient(180deg,rgba(26,24,20,.2) 0%,rgba(26,20,16,.6) 100%)"></div>
+      <div class="relative grid grid-cols-1 md:grid-cols-3 gap-6 pt-8"><!-- Snow Leopard card - featured -->
+       <div class="md:col-span-2 glass-card rounded-lg p-8 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-40 h-40 opacity-10">
+         <svg viewbox="0 0 100 100" class="w-full h-full"><path d="M50,10 Q30,30 20,50 Q30,70 50,90 Q70,70 80,50 Q70,30 50,10Z" fill="#D7CCC8" />
+         </svg>
+        </div><span class="text-xs text-gold opacity-40 tracking-widest uppercase block mb-4">Apex — Alpine Zone</span>
+        <h3 class="font-display text-3xl text-sand mb-3">Snow Leopard</h3>
+        <p class="font-accent text-sand opacity-40 leading-relaxed mb-4 max-w-lg">The ghost of the mountains. Fewer than 500 inhabit India's trans-Himalayan regions — Ladakh, Spiti, Sikkim. Perfectly adapted to thin air and vertical terrain.</p>
+        <div class="flex flex-wrap gap-4 mt-4">
+         <div class="text-center"><span class="font-display text-2xl text-gold">~500</span> <span class="block text-xs text-sand opacity-30">In India</span>
+         </div>
+         <div class="text-center"><span class="font-display text-2xl text-gold">3,500m+</span> <span class="block text-xs text-sand opacity-30">Altitude</span>
+         </div>
+         <div class="text-center"><span class="font-display text-2xl text-gold">-40°C</span> <span class="block text-xs text-sand opacity-30">Survives</span>
+         </div>
+        </div>
+       </div>
+       <div class="flex flex-col gap-6">
+        <div class="glass-card rounded-lg p-6"><span class="text-xs text-gold opacity-40 tracking-widest uppercase block mb-2">High Altitude</span>
+         <h3 class="font-display text-lg text-sand mb-1">Himalayan Tahr</h3>
+         <p class="text-xs text-sand opacity-40 font-accent">Mountain ungulate of steep cliff faces.</p>
+        </div>
+        <div class="glass-card rounded-lg p-6"><span class="text-xs text-gold opacity-40 tracking-widest uppercase block mb-2">Cloud Forest</span>
+         <h3 class="font-display text-lg text-sand mb-1">Musk Deer</h3>
+         <p class="text-xs text-sand opacity-40 font-accent">Elusive, fanged deer of the alpine meadows.</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- ==================== MARINE / REEFS SECTION ==================== -->
+   <section id="reefs" class="relative w-full section-reveal overflow-hidden" style="background:linear-gradient(180deg,#1a1814 0%,#1a2028 40%,#1a2530 70%,#1a1814 100%)"><!-- Curved fluid top -->
+    <svg class="w-full" viewbox="0 0 1200 80" preserveaspectratio="none" style="margin-bottom:-1px"><path d="M0,80 Q300,20 600,50 Q900,80 1200,30 L1200,80 L0,80Z" fill="#1a2028" opacity=".5" />
+    </svg>
+    <div class="py-12 px-6 md:px-16 relative">
+     <div class="flex items-center gap-3 mb-2"><span class="font-accent text-xs tracking-widest text-gold opacity-40 uppercase">Habitat 04</span>
+      <div class="w-20 h-px bg-gold opacity-20"></div>
+     </div>
+     <h2 class="font-display text-4xl md:text-5xl font-bold mb-4" style="color:#7eb8c9">The Living<br>
+       Reefs</h2>
+     <p class="font-accent text-base text-sand opacity-40 max-w-md mb-10">Lakshadweep's coral atolls shelter an underwater civilization of color and symbiosis.</p><!-- Underwater glass cards -->
+     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+       <div class="glass-card rounded-xl p-6 relative overflow-hidden photo-frame" style="border-color:rgba(126,184,201,.15);min-height:220px">
+      <img src="https://images.pexels.com/photos/19348113/pexels-photo-19348113.jpeg?auto=compress&cs=tinysrgb&w=4096" alt="Coral reef underwater" class="absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 opacity-5" style="background:linear-gradient(180deg,rgba(126,184,201,.1) 0%,transparent 100%)"></div>
+        <div class="relative">
+        <div class="w-12 h-12 rounded-full flex items-center justify-center mb-4" style="background:rgba(126,184,201,.1)">
+         <svg width="24" height="24" viewbox="0 0 24 24" style="color:#7eb8c9">
+          <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1" /><path d="M8,12 Q12,6 16,12 Q12,18 8,12Z" fill="currentColor" opacity=".3" />
+         </svg>
+        </div>
+        <h3 class="font-display text-xl text-sand mb-2">Coral Gardens</h3>
+        <p class="text-xs text-sand opacity-40 font-accent leading-relaxed">Over 200 species of hard coral form the foundation of Lakshadweep's reef ecosystem.</p>
+       </div>
+      </div>
+      <div class="glass-card rounded-xl p-6 relative overflow-hidden" style="border-color:rgba(126,184,201,.15);background:rgba(30,50,60,.18)">
+       <div class="relative">
+        <div class="grid grid-cols-2 gap-3 mb-4">
+         <div class="photo-frame rounded-lg h-24">
+          <img src="https://images.pexels.com/photos/2289409/pexels-photo-2289409.jpeg?auto=compress&cs=tinysrgb&w=4096" alt="School of fish underwater" class="w-full h-full object-cover">
+         </div>
+         <div class="photo-frame rounded-lg h-24">
+          <img src="https://images.pexels.com/photos/13824878/pexels-photo-13824878.jpeg?auto=compress&cs=tinysrgb&w=4096" alt="Striped fish underwater" class="w-full h-full object-cover">
+         </div>
+        </div>
+        <div class="w-12 h-12 rounded-full flex items-center justify-center mb-4" style="background:rgba(126,184,201,.1)"><i data-lucide="fish" style="width:20px;height:20px;color:#7eb8c9"></i>
+        </div>
+        <h3 class="font-display text-xl text-sand mb-2">Reef Fish</h3>
+        <p class="text-xs text-sand opacity-40 font-accent leading-relaxed">Parrotfish, clownfish, and butterflyfish in a kaleidoscope of marine life.</p>
+       </div>
+      </div>
+      <div class="glass-card rounded-xl p-6 relative overflow-hidden photo-frame" style="border-color:rgba(126,184,201,.15);min-height:220px">
+        <img src="https://images.pexels.com/photos/4784156/pexels-photo-4784156.jpeg?auto=compress&cs=tinysrgb&w=4096" alt="Tropical island shoreline" class="absolute inset-0 w-full h-full object-cover">
+       <div class="relative">
+        <div class="w-12 h-12 rounded-full flex items-center justify-center mb-4" style="background:rgba(126,184,201,.1)">
+         <svg width="24" height="24" viewbox="0 0 24 24" style="color:#7eb8c9">
+          <path d="M4,12 Q8,4 12,12 Q16,20 20,12" fill="none" stroke="currentColor" stroke-width="1.5" /><circle cx="12" cy="12" r="2" fill="currentColor" opacity=".4" />
+         </svg>
+        </div>
+        <h3 class="font-display text-xl text-sand mb-2">Sea Turtles</h3>
+        <p class="text-xs text-sand opacity-40 font-accent leading-relaxed">Green and Hawksbill turtles nest on remote atoll beaches each season.</p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- ==================== ISLANDS SECTION ==================== -->
+   <section id="islands" class="relative w-full section-reveal" style="background:linear-gradient(180deg,#1a1814 0%,#1e2218 50%,#1a1410 100%)">
+    <div class="py-16 px-6 md:px-16">
+     <div class="flex items-center gap-3 mb-2"><span class="font-accent text-xs tracking-widest text-gold opacity-40 uppercase">Habitat 05</span>
+      <div class="w-20 h-px bg-gold opacity-20"></div>
+     </div>
+     <h2 class="font-display text-4xl md:text-5xl font-bold text-sand mb-4">The Remote<br>
+       Islands</h2>
+     <p class="font-accent text-base text-sand opacity-40 max-w-md mb-10">Andaman &amp; Nicobar — India's emerald archipelago of endemic species and untouched forests.</p><!-- Floating tropical cards -->
+     <div class="photo-frame relative overflow-hidden rounded-2xl mb-10" style="height:260px">
+      <img src="https://images.pexels.com/photos/32279569/pexels-photo-32279569.jpeg?auto=compress&cs=tinysrgb&w=4096" alt="Aerial tropical island coastline" class="absolute inset-0 w-full h-full object-cover">
+      <div class="absolute inset-0" style="background:linear-gradient(180deg,rgba(26,20,16,.1) 0%,rgba(26,20,16,.45) 100%)"></div>
+      <div class="absolute bottom-4 left-4 z-10">
+       <span class="font-display text-sm tracking-widest uppercase text-sand opacity-80">Andaman Coastline</span>
+      </div>
+     </div>
+     <div class="flex flex-wrap gap-6 justify-center">
+      <div class="species-card bg-darkwood bg-opacity-30 rounded-xl p-6 max-w-xs border border-moss border-opacity-10" style="transform:rotate(-1deg)">
+       <div class="flex items-center gap-3 mb-3">
+        <div class="w-8 h-8 rounded-full bg-moss bg-opacity-20 flex items-center justify-center">
+         🦜
+        </div>
+        <h3 class="font-display text-lg text-sand">Nicobar Pigeon</h3>
+       </div>
+       <p class="text-xs text-sand opacity-40 font-accent">Iridescent ground-dwelling bird. Closest living relative of the dodo.</p>
+      </div>
+      <div class="species-card bg-darkwood bg-opacity-30 rounded-xl p-6 max-w-xs border border-moss border-opacity-10" style="transform:rotate(1.5deg);margin-top:1.5rem">
+       <div class="flex items-center gap-3 mb-3">
+        <div class="w-8 h-8 rounded-full bg-moss bg-opacity-20 flex items-center justify-center">
+         🐘
+        </div>
+        <h3 class="font-display text-lg text-sand">Feral Elephants</h3>
+       </div>
+       <p class="text-xs text-sand opacity-40 font-accent">Swimming between islands — a unique population descended from timber elephants.</p>
+      </div>
+      <div class="species-card bg-darkwood bg-opacity-30 rounded-xl p-6 max-w-xs border border-moss border-opacity-10" style="transform:rotate(-0.5deg)">
+       <div class="flex items-center gap-3 mb-3">
+        <div class="w-8 h-8 rounded-full bg-moss bg-opacity-20 flex items-center justify-center">
+         🦎
+        </div>
+        <h3 class="font-display text-lg text-sand">Andaman Day Gecko</h3>
+       </div>
+       <p class="text-xs text-sand opacity-40 font-accent">Emerald endemic found nowhere else on Earth.</p>
+      </div>
+     </div>
+    </div>
+   </section><!-- ==================== PREDATORS / MANGROVE SECTION ==================== -->
+   <section id="predators" class="relative w-full section-reveal" style="background:linear-gradient(180deg,#0f0d0a 0%,#1a1410 30%,#0f0d0a 100%)">
+    <div class="py-16 px-6 md:px-16">
+     <div class="flex items-center gap-3 mb-2"><span class="font-accent text-xs tracking-widest text-gold opacity-40 uppercase">Predators</span>
+      <div class="w-20 h-px bg-gold opacity-20"></div>
+     </div>
+     <h2 class="font-display text-4xl md:text-6xl font-bold mb-4" style="color:#8D6E63">Mangrove<br><span class="text-gold">Hunters</span></h2>
+     <p class="font-accent text-base text-sand opacity-40 max-w-md mb-12">The Sundarbans — where saltwater meets shadow, and the apex predator lies hidden.</p><!-- Dramatic reveal card -->
+     <div class="relative max-w-4xl mx-auto">
+      <div class="relative overflow-hidden rounded-lg" style="background:linear-gradient(135deg,#0f0d0a 0%,#1a1410 50%,#3B2A23 100%);min-height:350px">
+       <img src="https://images.pexels.com/photos/6477255/pexels-photo-6477255.jpeg?auto=compress&cs=tinysrgb&w=4096" alt="Saltwater crocodile in water" class="absolute inset-0 w-full h-full object-cover opacity-30">
+       <!-- Decorative CSS/SVG removed for a cleaner photographic treatment -->
+       <div class="absolute bottom-0 left-0 right-0 p-8" style="background:linear-gradient(0deg,rgba(15,13,10,.9) 0%,transparent 100%)">
+        <h3 class="font-display text-2xl text-sand mb-2">Saltwater Crocodile</h3>
+        <p class="font-accent text-sm text-sand opacity-40 max-w-lg">The world's largest living reptile. Up to 6 meters. Supreme ambush predator of the Sundarbans delta.</p>
+        <div class="flex gap-4 mt-3"><span class="px-3 py-1 text-xs bg-bark bg-opacity-30 text-gold rounded">Apex Predator</span> <span class="px-3 py-1 text-xs bg-bark bg-opacity-30 text-dryleaf rounded">Least Concern</span>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- ==================== NATIONAL PARKS - ARCHIVAL DRAWERS ==================== -->
+   <section id="species" class="relative w-full section-reveal bark-texture" style="background:linear-gradient(180deg,#1a1410 0%,#2a2018 50%,#1a1410 100%)">
+    <div class="py-16 px-6 md:px-16">
+     <div class="flex items-center gap-3 mb-2"><span class="font-accent text-xs tracking-widest text-gold opacity-40 uppercase">Forest Memory</span>
+      <div class="w-20 h-px bg-gold opacity-20"></div>
+     </div>
+     <h2 class="font-display text-4xl md:text-5xl font-bold text-sand mb-4" id="memory">National Parks<br>
+       Archive</h2>
+     <p class="font-accent text-base text-sand opacity-40 max-w-md mb-10">India's protected sanctuaries — specimen drawers of a living museum.</p>
+     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl"><!-- Jim Corbett -->
+      <div class="drawer-card bg-darkwood bg-opacity-20 rounded-lg p-6">
+       <div class="flex items-start justify-between mb-4">
+        <div><span class="text-xs text-gold opacity-40 tracking-widest uppercase block mb-1">Est. 1936</span>
+         <h3 class="font-display text-xl text-sand">Jim Corbett</h3>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-bark bg-opacity-20 flex items-center justify-center"><span class="text-lg">🐅</span>
+        </div>
+       </div>
+       <p class="text-xs text-sand opacity-40 font-accent leading-relaxed mb-4">India's oldest national park. Uttarakhand. Named after the legendary hunter-turned-conservationist.</p>
+       <div class="flex gap-3 flex-wrap"><span class="text-xs px-2 py-1 bg-moss bg-opacity-10 text-moss rounded">Tiger</span> <span class="text-xs px-2 py-1 bg-moss bg-opacity-10 text-moss rounded">Elephant</span> <span class="text-xs px-2 py-1 bg-moss bg-opacity-10 text-moss rounded">Sal Forest</span>
+       </div>
+       <div class="mt-4 pt-3 border-t border-bark border-opacity-10 flex items-center gap-2 text-sand opacity-30 text-xs"><i data-lucide="map-pin" style="width:12px;height:12px"></i> <span>Uttarakhand • 520 km²</span>
+       </div>
+      </div><!-- Ranthambore -->
+      <div class="drawer-card bg-darkwood bg-opacity-20 rounded-lg p-6">
+       <div class="flex items-start justify-between mb-4">
+        <div><span class="text-xs text-gold opacity-40 tracking-widest uppercase block mb-1">Est. 1980</span>
+         <h3 class="font-display text-xl text-sand">Ranthambore</h3>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-bark bg-opacity-20 flex items-center justify-center"><span class="text-lg">🏰</span>
+        </div>
+       </div>
+       <p class="text-xs text-sand opacity-40 font-accent leading-relaxed mb-4">Where tigers walk among 10th-century ruins. Rajasthan's crown jewel of wildlife photography.</p>
+       <div class="flex gap-3 flex-wrap"><span class="text-xs px-2 py-1 bg-moss bg-opacity-10 text-moss rounded">Tiger</span> <span class="text-xs px-2 py-1 bg-moss bg-opacity-10 text-moss rounded">Leopard</span> <span class="text-xs px-2 py-1 bg-moss bg-opacity-10 text-moss rounded">Dry Deciduous</span>
+       </div>
+       <div class="mt-4 pt-3 border-t border-bark border-opacity-10 flex items-center gap-2 text-sand opacity-30 text-xs"><i data-lucide="map-pin" style="width:12px;height:12px"></i> <span>Rajasthan • 392 km²</span>
+       </div>
+      </div><!-- Kaziranga -->
+      <div class="drawer-card bg-darkwood bg-opacity-20 rounded-lg p-6">
+       <div class="flex items-start justify-between mb-4">
+        <div><span class="text-xs text-gold opacity-40 tracking-widest uppercase block mb-1">Est. 1974</span>
+         <h3 class="font-display text-xl text-sand">Kaziranga</h3>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-bark bg-opacity-20 flex items-center justify-center"><span class="text-lg">🦏</span>
+        </div>
+       </div>
+       <p class="text-xs text-sand opacity-40 font-accent leading-relaxed mb-4">Home to two-thirds of the world's Greater One-Horned Rhinoceros. UNESCO World Heritage Site.</p>
+       <div class="flex gap-3 flex-wrap"><span class="text-xs px-2 py-1 bg-moss bg-opacity-10 text-moss rounded">Rhino</span> <span class="text-xs px-2 py-1 bg-moss bg-opacity-10 text-moss rounded">Wild Buffalo</span> <span class="text-xs px-2 py-1 bg-moss bg-opacity-10 text-moss rounded">Grassland</span>
+       </div>
+       <div class="mt-4 pt-3 border-t border-bark border-opacity-10 flex items-center gap-2 text-sand opacity-30 text-xs"><i data-lucide="map-pin" style="width:12px;height:12px"></i> <span>Assam • 430 km²</span>
+       </div>
+      </div><!-- Gir -->
+      <div class="drawer-card bg-darkwood bg-opacity-20 rounded-lg p-6">
+       <div class="flex items-start justify-between mb-4">
+        <div><span class="text-xs text-gold opacity-40 tracking-widest uppercase block mb-1">Est. 1965</span>
+         <h3 class="font-display text-xl text-sand">Gir Forest</h3>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-bark bg-opacity-20 flex items-center justify-center"><span class="text-lg">🦁</span>
+        </div>
+       </div>
+       <p class="text-xs text-sand opacity-40 font-accent leading-relaxed mb-4">The last sanctuary of the Asiatic Lion. ~700 lions roam this teak-and-acacia wilderness.</p>
+       <div class="flex gap-3 flex-wrap"><span class="text-xs px-2 py-1 bg-moss bg-opacity-10 text-moss rounded">Asiatic Lion</span> <span class="text-xs px-2 py-1 bg-moss bg-opacity-10 text-moss rounded">Chital</span> <span class="text-xs px-2 py-1 bg-moss bg-opacity-10 text-moss rounded">Teak Forest</span>
+       </div>
+       <div class="mt-4 pt-3 border-t border-bark border-opacity-10 flex items-center gap-2 text-sand opacity-30 text-xs"><i data-lucide="map-pin" style="width:12px;height:12px"></i> <span>Gujarat • 1,412 km²</span>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- ==================== INDIGENOUS ECOLOGY ==================== -->
+   <section class="relative w-full section-reveal" style="background:#1a1410">
+    <div class="py-16 px-6 md:px-16 max-w-3xl mx-auto text-center">
+     <div class="w-px h-16 bg-gold opacity-15 mx-auto mb-8"></div><span class="font-accent text-xs tracking-widest text-gold opacity-30 uppercase block mb-6">Indigenous Ecology</span>
+     <h2 class="font-display text-3xl md:text-4xl text-sand mb-6" style="opacity:.7">Guardians of the Forest</h2>
+     <p class="font-accent text-base text-sand opacity-35 leading-relaxed mb-6">The Jarawa people of the Andaman Islands have inhabited their forests for over 55,000 years. Their deep ecological knowledge sustains one of Earth's last pristine ecosystems. Their sovereignty and isolation are protected by Indian law.</p>
+     <p class="font-accent text-sm text-sand opacity-25 leading-relaxed italic">"We do not own the forest. We are the forest."</p>
+     <div class="w-px h-16 bg-gold opacity-15 mx-auto mt-8"></div>
+    </div>
+   </section><!-- ==================== FOOTER ==================== -->
+   <footer class="relative w-full py-16 px-6 md:px-16" style="background:linear-gradient(180deg,#1a1410 0%,#0f0d0a 100%)"><!-- Root divider -->
+    <svg class="w-full mb-12" viewbox="0 0 1200 40" preserveaspectratio="none" style="height:20px" aria-hidden="true"><path d="M0,20 Q100,10 200,18 Q300,5 400,15 Q500,25 600,12 Q700,8 800,20 Q900,15 1000,18 Q1100,10 1200,20" fill="none" stroke="#556B2F" stroke-width="1" opacity=".5" />
+    </svg>
+    <div class="flex flex-col md:flex-row items-start justify-between gap-8">
+     <div>
+      <div class="flex items-center gap-3 mb-4">
+       <svg width="24" height="24" viewbox="0 0 28 28" style="color:#7FBF7F"><path d="M14 2C14 2 8 8 8 14c0 4 3 7 6 8 3-1 6-4 6-8 0-6-6-12-6-12z" fill="currentColor" />
+       </svg><span class="font-display text-lg" style="color:#A8D5A8">Wild India</span>
+      </div>
+      <p class="font-accent text-xs leading-relaxed" style="color:#B8C8B0">A living biodiversity archive. Celebrating India's forests, oceans, mountains, and the extraordinary species that call them home.</p>
+     </div>
+     <div class="text-right">
+      <p class="font-accent text-xs mt-1" style="color:#A8D5A8">Designed with reverence for the natural world.</p>
+      <p class="font-accent text-xs mt-2" style="color:#8D9E87">Data sourced from Wildlife Institute of India &amp; Project Tiger.</p>
+      <div class="w-px h-8 my-3" style="background:linear-gradient(180deg,#556B2F 0%,#8D6E63 100%);opacity:.4"></div>
+      <p class="font-accent text-xs mt-3" style="color:#A8D5A8">Made with <span style="color:#7FBF7F">❤️</span> by <span style="color:#7FBF7F">Nova Dhruv</span></p>
+      <p class="font-accent text-xs mt-2 leading-relaxed" style="color:#8D9E87">Inspired by the Aditya &amp; Vikram tales<br>
+        of <span style="color:#9BB89B">Deepak Dalal</span></p>
+     </div>
+    </div>
+   </footer>
+  </div><!-- end #app -->
+  <script>
+// === Element SDK Setup ===
+const defaultConfig = {
+  hero_title: 'Wild India',
+  hero_subtitle: 'A living archive of forests, oceans, islands, and species.',
+  nav_habitats: 'Habitats',
+  nav_species: 'Living Species',
+  nav_predators: 'Predators',
+  nav_reefs: 'Reefs',
+  nav_memory: 'Forest Memory',
+  background_color: '#1a1410',
+  surface_color: '#3B2A23',
+  text_color: '#D7CCC8',
+  primary_action_color: '#C8A165',
+  secondary_action_color: '#8D6E63',
+  font_family: 'Playfair Display',
+  font_size: 16
+};
+
+async function initApp() {
+  // Leaf particles
+  const particleContainer = document.getElementById('particles');
+  function createLeaf() {
+    const leaf = document.createElement('div');
+    leaf.className = 'leaf-particle';
+    leaf.innerHTML = '<svg viewBox="0 0 12 12"><path d="M6 0C6 0 0 4 0 8c0 2.5 2.5 4 6 4s6-1.5 6-4C12 4 6 0 6 0z"/></svg>';
+    leaf.style.left = Math.random() * 100 + '%';
+    leaf.style.animationDuration = (8 + Math.random() * 12) + 's';
+    leaf.style.animationDelay = Math.random() * 15 + 's';
+    particleContainer.appendChild(leaf);
+    setTimeout(() => leaf.remove(), 25000);
+  }
+  for (let i = 0; i < 6; i++) setTimeout(() => createLeaf(), i * 3000);
+  setInterval(createLeaf, 5000);
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        // Trigger species card animations
+        e.target.querySelectorAll('.species-card').forEach(c => c.style.animationPlayState = 'running');
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.section-reveal').forEach(s => observer.observe(s));
+
+  // Mobile menu
+  document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+    document.getElementById('mobileMenu').classList.remove('hidden');
+  });
+  document.getElementById('mobileMenuClose').addEventListener('click', () => {
+    document.getElementById('mobileMenu').classList.add('hidden');
+  });
+  document.querySelectorAll('.mobile-nav-link').forEach(l => {
+    l.addEventListener('click', () => document.getElementById('mobileMenu').classList.add('hidden'));
+  });
+
+  // Element SDK
+  if (window.elementSdk) {
+    window.elementSdk.init({
+      defaultConfig,
+      onConfigChange: async (config) => {
+        const c = { ...defaultConfig, ...config };
+        // Text updates
+        const heroTitle = document.getElementById('heroTitle');
+        if (heroTitle) {
+          const parts = (c.hero_title || defaultConfig.hero_title).split(' ');
+          heroTitle.innerHTML = parts.length > 1
+            ? `${parts[0]}<br><span class="text-gold">${parts.slice(1).join(' ')}</span>`
+            : `<span class="text-gold">${parts[0]}</span>`;
+        }
+        const heroSub = document.getElementById('heroSubtitle');
+        if (heroSub) heroSub.textContent = c.hero_subtitle || defaultConfig.hero_subtitle;
+
+        // Nav labels
+        const navMap = { navHabitats: 'nav_habitats', navSpecies: 'nav_species', navPredators: 'nav_predators', navReefs: 'nav_reefs', navMemory: 'nav_memory' };
+        Object.entries(navMap).forEach(([id, key]) => {
+          const el = document.getElementById(id);
+          if (el) el.querySelector('span').textContent = c[key] || defaultConfig[key];
+        });
+
+        // Colors
+        const app = document.getElementById('app');
+        app.style.backgroundColor = c.background_color || defaultConfig.background_color;
+
+        document.querySelectorAll('.text-gold, .text-gold').forEach(el => {
+          el.style.color = c.primary_action_color || defaultConfig.primary_action_color;
+        });
+
+        // Font
+        const font = c.font_family || defaultConfig.font_family;
+        document.querySelectorAll('.font-display').forEach(el => {
+          el.style.fontFamily = `${font}, Playfair Display, serif`;
+        });
+
+        // Font size
+        const base = c.font_size || defaultConfig.font_size;
+        document.querySelectorAll('h1').forEach(el => el.style.fontSize = '');
+        document.querySelectorAll('p').forEach(el => el.style.fontSize = `${base}px`);
+        document.querySelectorAll('h2').forEach(el => el.style.fontSize = `${base * 2.5}px`);
+        document.querySelectorAll('h3').forEach(el => el.style.fontSize = `${base * 1.25}px`);
+      },
+      mapToCapabilities: (config) => {
+        const c = { ...defaultConfig, ...config };
+        return {
+          recolorables: [
+            { get: () => c.background_color || defaultConfig.background_color, set: (v) => { c.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
+            { get: () => c.surface_color || defaultConfig.surface_color, set: (v) => { c.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); } },
+            { get: () => c.text_color || defaultConfig.text_color, set: (v) => { c.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
+            { get: () => c.primary_action_color || defaultConfig.primary_action_color, set: (v) => { c.primary_action_color = v; window.elementSdk.setConfig({ primary_action_color: v }); } },
+            { get: () => c.secondary_action_color || defaultConfig.secondary_action_color, set: (v) => { c.secondary_action_color = v; window.elementSdk.setConfig({ secondary_action_color: v }); } }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => c.font_family || defaultConfig.font_family,
+            set: (v) => { c.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
+          },
+          fontSizeable: {
+            get: () => c.font_size || defaultConfig.font_size,
+            set: (v) => { c.font_size = v; window.elementSdk.setConfig({ font_size: v }); }
+          }
+        };
+      },
+      mapToEditPanelValues: (config) => {
+        const c = { ...defaultConfig, ...config };
+        return new Map([
+          ['hero_title', c.hero_title || defaultConfig.hero_title],
+          ['hero_subtitle', c.hero_subtitle || defaultConfig.hero_subtitle],
+          ['nav_habitats', c.nav_habitats || defaultConfig.nav_habitats],
+          ['nav_species', c.nav_species || defaultConfig.nav_species],
+          ['nav_predators', c.nav_predators || defaultConfig.nav_predators],
+          ['nav_reefs', c.nav_reefs || defaultConfig.nav_reefs],
+          ['nav_memory', c.nav_memory || defaultConfig.nav_memory]
+        ]);
+      }
+    });
+  }
+
+  lucide.createIcons();
+}
+
+initApp();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e78a51da0f9d84f',t:'MTc3NTM5MzA3NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
